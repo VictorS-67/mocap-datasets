@@ -1,2 +1,2 @@
-# MoCapIndex
-An Interactive Motion Capture Dataset Repository
+# Mocap-datasets
+An interactive motion capture dataset repository.
