@@ -1,94 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- ... inside <head> ... -->
     <title>MoCap Dataset Explorer | Interactive Repository</title>
+    
+    <!-- FAVICON -->
+    <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+
+    <!-- 1. External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="datasets.js"></script>
-    <style>
-        /* Custom Scrollbar for cleaner look */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f5f5f4; 
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #d6d3d1; 
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a8a29e; 
-        }
-
-        /* Chart Container Styles - Strictly Enforced per requirements */
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 600px; /* Max width constraint */
-            margin-left: auto;
-            margin-right: auto;
-            height: 300px; /* Base height */
-            max-height: 350px; /* Hard cap */
-        }
-        
-        @media (min-width: 768px) {
-            .chart-container {
-                height: 350px;
-            }
-        }
-
-        /* Card Hover Effects */
-        .dataset-card {
-            transition: all 0.2s ease-in-out;
-        }
-        .dataset-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        /* Unicode Icons as Pseudo-elements or classes */
-        .icon-3d::before { content: "🧊"; margin-right: 5px; }
-        .icon-2d::before { content: "🖼️"; margin-right: 5px; }
-        .icon-marker::before { content: "📍"; margin-right: 5px; }
-        .icon-video::before { content: "📹"; margin-right: 5px; }
-        .icon-imu::before { content: "🧭"; margin-right: 5px; }
-        .icon-multi::before { content: "👥"; margin-right: 5px; }
-        .icon-single::before { content: "👤"; margin-right: 5px; }
-    </style>
-    <!-- Chosen Palette: Warm Neutrals & Academic Earth Tones -->
-    <!-- Background: Stone-50 (Warm Off-white) -->
-    <!-- Text: Stone-800 (Dark Grey/Brown) -->
-    <!-- Accents: Amber-600, Orange-700 (Warm Highlights) -->
     
-    <!-- Application Structure Plan:
-         1. Header: Simple branding and global stats summary.
-         2. Analytical Dashboard (Top Section): 
-            - Provides a high-level overview of the ecosystem using Chart.js.
-            - Logic: Users first understand the landscape (mostly 3D? mostly Marker-based?) before diving into specifics.
-         3. Filter & Control Bar (Sticky):
-            - Allows users to slice the data by Dimension, Method, and Subject count.
-            - This is the primary functional interaction tool.
-         4. Repository Grid (Main Content):
-            - Displays individual datasets as cards. 
-            - Sorted and filtered dynamically by the JS logic.
-         5. Detail Modal:
-            - A focused view for a specific dataset to read the full description and detailed tags without cluttering the main grid.
-    -->
-
-    <!-- Visualization & Content Choices:
-         - Stats: Donut Charts for Dimensionality and Method Distribution (Goal: Inform/Compare). 
-           Justification: Quick visual ratio assessment.
-         - List: Grid of Cards (Goal: Organize). 
-           Justification: Standard pattern for repositories, easy to scan.
-         - Badges: Color-coded Tailwind spans. 
-           Justification: Immediate visual categorization (2D vs 3D).
-         - Library: Chart.js for canvas rendering.
-    -->
-    
-    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <!-- 2. Your Custom Styles -->
+    <link rel="stylesheet" href="assets/styles.css">
 </head>
 <body class="bg-stone-50 text-stone-800 font-sans antialiased selection:bg-amber-200">
 
@@ -113,7 +34,7 @@
             <div class="max-w-3xl">
                 <h2 class="text-2xl font-bold text-stone-900">Dataset Ecosystem Overview</h2>
                 <p class="mt-2 text-stone-600 leading-relaxed">
-                    Welcome to the comprehensive repository of motion capture datasets. This tool aggregates resources across the computer vision and graphics community, categorizing them by capture modality, dimensionality, and subject interaction. Use the analytics below to understand the current landscape of available data, or scroll down to search and filter the repository directly.
+                    Welcome to the comprehensive repository of motion capture datasets. This tool aggregates resources across the computer vision and graphics community, categorizing them by capture modality, dimensionality, and subject interaction.
                 </p>
             </div>
 
@@ -127,7 +48,6 @@
                             <canvas id="dimensionChart"></canvas>
                         </div>
                     </div>
-                    <p class="text-xs text-center text-stone-400 mt-2">Distribution of 2D vs 3D vs Hybrid datasets</p>
                 </div>
 
                 <!-- Chart 2: Capture Method -->
@@ -138,10 +58,9 @@
                             <canvas id="methodChart"></canvas>
                         </div>
                     </div>
-                    <p class="text-xs text-center text-stone-400 mt-2">Marker-based systems vs Video estimation vs IMU</p>
                 </div>
 
-                <!-- Stats Cards (HTML/CSS) -->
+                <!-- Stats Cards -->
                 <div class="grid grid-rows-3 gap-4">
                     <div class="bg-amber-50 p-5 rounded-xl border border-amber-100 flex items-center justify-between">
                         <div>
@@ -250,49 +169,35 @@
         <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <!-- Overlay -->
             <div class="fixed inset-0 bg-stone-500 bg-opacity-75 transition-opacity" aria-hidden="true" id="modalOverlay"></div>
-
             <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-
+            
             <!-- Modal Panel -->
             <div class="relative inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
                 <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                     <div class="sm:flex sm:items-start">
-                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 sm:mx-0 sm:h-10 sm:w-10 text-amber-600 text-xl" id="modalIcon">
-                            📊
-                        </div>
+                        <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 sm:mx-0 sm:h-10 sm:w-10 text-amber-600 text-xl" id="modalIcon"></div>
                         <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
                             <h3 class="text-lg leading-6 font-medium text-stone-900" id="modalTitle">Dataset Title</h3>
-                            <div class="mt-1 flex flex-wrap gap-2" id="modalBadges">
-                                <!-- Badges injected here -->
-                            </div>
+                            <div class="mt-1 flex flex-wrap gap-2" id="modalBadges"></div>
                             <div class="mt-4 space-y-3">
-                                <p class="text-sm text-stone-600" id="modalDescription">
-                                    Description goes here.
-                                </p>
-                                
+                                <p class="text-sm text-stone-600" id="modalDescription"></p>
                                 <div class="bg-stone-50 p-3 rounded-md border border-stone-200">
                                     <h4 class="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Technical Characteristics</h4>
-                                    <ul class="text-sm text-stone-700 space-y-1 grid grid-cols-1 sm:grid-cols-2 gap-x-4" id="modalStats">
-                                        <!-- Stats injected here -->
-                                    </ul>
+                                    <ul class="text-sm text-stone-700 space-y-1 grid grid-cols-1 sm:grid-cols-2 gap-x-4" id="modalStats"></ul>
                                 </div>
-
                                 <div class="bg-stone-50 p-3 rounded-md border border-stone-200">
                                     <h4 class="text-xs font-bold text-stone-500 uppercase tracking-wide mb-2">Labels & Annotations</h4>
-                                    <div class="flex flex-wrap gap-2" id="modalTags">
-                                        <!-- Tags injected here -->
-                                    </div>
+                                    <div class="flex flex-wrap gap-2" id="modalTags"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="bg-stone-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                    <button type="button" id="closeModalBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:ml-3 sm:w-auto sm:text-sm">
+                    <button type="button" id="closeModalBtn" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 sm:ml-3 sm:w-auto sm:text-sm">
                         Close
                     </button>
-                    <!-- Simulated External Link -->
-                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-stone-700 hover:bg-stone-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm cursor-not-allowed opacity-75" title="External links disabled in demo">
+                    <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-stone-700 hover:bg-stone-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm cursor-not-allowed opacity-75">
                         Visit Website ↗
                     </button>
                 </div>
@@ -300,292 +205,9 @@
         </div>
     </div>
 
-    <script>
-        // --- STATE MANAGEMENT ---
-        let state = {
-            searchQuery: "",
-            filters: {
-                dimension: "all",
-                method: "all",
-                subjects: "all"
-            },
-            filteredData: [...datasets]
-        };
+    <!-- 3. Your Data & Logic (Order Matters) -->
+    <script src="data/datasets.js"></script>
+    <script src="assets/app.js"></script>
 
-        // --- DOM ELEMENTS ---
-        const gridEl = document.getElementById('datasetGrid');
-        const emptyStateEl = document.getElementById('emptyState');
-        const searchInput = document.getElementById('searchInput');
-        const filterSelects = {
-            dimension: document.getElementById('dimensionFilter'),
-            method: document.getElementById('methodFilter'),
-            subjects: document.getElementById('subjectsFilter')
-        };
-        const resetButton = document.getElementById('resetFilters');
-        
-        // Modal Elements
-        const modal = document.getElementById('detailModal');
-        const modalOverlay = document.getElementById('modalOverlay');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const modalContent = {
-            title: document.getElementById('modalTitle'),
-            desc: document.getElementById('modalDescription'),
-            badges: document.getElementById('modalBadges'),
-            stats: document.getElementById('modalStats'),
-            tags: document.getElementById('modalTags'),
-            icon: document.getElementById('modalIcon')
-        };
-
-        // Stats Display Elements
-        const totalCountDisplay = document.getElementById('totalCountDisplay');
-        const multiPersonCountDisplay = document.getElementById('multiPersonCountDisplay');
-        const actionLabelCountDisplay = document.getElementById('actionLabelCountDisplay');
-
-        // --- CORE FUNCTIONS ---
-
-        function init() {
-            setupEventListeners();
-            updateStats();
-            renderCharts();
-            renderGrid();
-        }
-
-        function setupEventListeners() {
-            searchInput.addEventListener('input', (e) => {
-                state.searchQuery = e.target.value.toLowerCase();
-                applyFilters();
-            });
-
-            Object.keys(filterSelects).forEach(key => {
-                filterSelects[key].addEventListener('change', (e) => {
-                    state.filters[key] = e.target.value;
-                    applyFilters();
-                });
-            });
-
-            resetButton.addEventListener('click', () => {
-                state.searchQuery = "";
-                searchInput.value = "";
-                state.filters = { dimension: "all", method: "all", subjects: "all" };
-                Object.values(filterSelects).forEach(sel => sel.value = "all");
-                applyFilters();
-            });
-
-            closeModalBtn.addEventListener('click', toggleModal);
-            modalOverlay.addEventListener('click', toggleModal);
-        }
-
-        function applyFilters() {
-            state.filteredData = datasets.filter(item => {
-                // Search Text
-                const matchesSearch = item.name.toLowerCase().includes(state.searchQuery) || 
-                                      item.description.toLowerCase().includes(state.searchQuery) ||
-                                      item.labels.some(l => l.toLowerCase().includes(state.searchQuery));
-
-                // Dimension Filter
-                const matchesDim = state.filters.dimension === "all" || 
-                                   (state.filters.dimension === "Hybrid" ? item.dimension.includes("Hybrid") : item.dimension === state.filters.dimension);
-
-                // Method Filter (Fuzzy matching for simplified dropdown)
-                let matchesMethod = true;
-                if (state.filters.method !== "all") {
-                    if (state.filters.method === "Marker") matchesMethod = item.method.includes("Marker");
-                    else if (state.filters.method === "Markerless/Video") matchesMethod = item.method.includes("Video") || item.method.includes("Image");
-                    else if (state.filters.method === "IMU") matchesMethod = item.method.includes("IMU");
-                    else if (state.filters.method === "Synthetic") matchesMethod = item.method.includes("Synthetic");
-                }
-
-                // Subject Filter
-                let matchesSub = true;
-                if (state.filters.subjects !== "all") {
-                    if (state.filters.subjects === "Multi") matchesSub = item.subjects === "Multi" || item.subjects === "Crowd";
-                    else if (state.filters.subjects === "Crowd") matchesSub = item.subjects === "Crowd";
-                    else matchesSub = item.subjects === "Single";
-                }
-
-                return matchesSearch && matchesDim && matchesMethod && matchesSub;
-            });
-
-            renderGrid();
-        }
-
-        function getBadgeColor(type, value) {
-            // Tailwind classes for badges
-            if (type === 'dim') {
-                if (value.includes('3D')) return 'bg-blue-100 text-blue-800';
-                if (value.includes('2D')) return 'bg-green-100 text-green-800';
-                return 'bg-purple-100 text-purple-800';
-            }
-            if (type === 'sub') {
-                if (value === 'Single') return 'bg-stone-100 text-stone-600';
-                return 'bg-orange-100 text-orange-800';
-            }
-            return 'bg-gray-100 text-gray-800';
-        }
-
-        function renderGrid() {
-            gridEl.innerHTML = "";
-            
-            if (state.filteredData.length === 0) {
-                emptyStateEl.classList.remove('hidden');
-            } else {
-                emptyStateEl.classList.add('hidden');
-                
-                state.filteredData.forEach(dataset => {
-                    const card = document.createElement('div');
-                    card.className = "dataset-card bg-white rounded-xl border border-stone-200 p-6 flex flex-col h-full cursor-pointer hover:border-amber-300";
-                    card.onclick = () => openModal(dataset);
-
-                    // Card Content
-                    card.innerHTML = `
-                        <div class="flex justify-between items-start mb-4">
-                            <div class="flex items-center gap-3">
-                                <span class="text-2xl bg-stone-50 p-2 rounded-lg">${dataset.icon}</span>
-                                <div>
-                                    <h3 class="font-bold text-stone-900 leading-tight">${dataset.name}</h3>
-                                    <span class="text-xs text-stone-500">${dataset.year}</span>
-                                </div>
-                            </div>
-                            <span class="px-2 py-1 rounded text-xs font-semibold ${getBadgeColor('dim', dataset.dimension)}">
-                                ${dataset.dimension}
-                            </span>
-                        </div>
-                        
-                        <p class="text-stone-600 text-sm mb-4 line-clamp-3 flex-grow">${dataset.description}</p>
-                        
-                        <div class="space-y-2 mt-auto">
-                            <div class="flex flex-wrap gap-2 text-xs">
-                                <span class="px-2 py-1 bg-stone-50 text-stone-600 rounded border border-stone-100 icon-marker">
-                                    ${dataset.method}
-                                </span>
-                                <span class="px-2 py-1 bg-stone-50 text-stone-600 rounded border border-stone-100 icon-single">
-                                    ${dataset.subjects}
-                                </span>
-                            </div>
-                            <div class="pt-3 border-t border-stone-100 flex justify-between items-center">
-                                <span class="text-xs text-stone-400 font-mono">${dataset.labels.slice(0, 2).join(", ")}...</span>
-                                <span class="text-xs font-medium text-amber-600 group-hover:underline">View Details →</span>
-                            </div>
-                        </div>
-                    `;
-                    gridEl.appendChild(card);
-                });
-            }
-        }
-
-        // --- ANALYTICS CHARTS ---
-        let dimChartInstance = null;
-        let methodChartInstance = null;
-
-        function updateStats() {
-            // Simple counts
-            totalCountDisplay.innerText = datasets.length;
-            multiPersonCountDisplay.innerText = datasets.filter(d => d.subjects !== "Single").length;
-            actionLabelCountDisplay.innerText = datasets.filter(d => d.labels.some(l => l.includes("Action") || l.includes("Activity"))).length;
-        }
-
-        function renderCharts() {
-            // Data Prep for Dim Chart
-            const dimCounts = { "3D": 0, "2D": 0, "Hybrid": 0 };
-            datasets.forEach(d => {
-                if (d.dimension.includes("Hybrid")) dimCounts["Hybrid"]++;
-                else if (d.dimension.includes("3D")) dimCounts["3D"]++;
-                else dimCounts["2D"]++;
-            });
-
-            // Data Prep for Method Chart
-            const methodCounts = { "Marker": 0, "Video": 0, "IMU": 0, "Synthetic": 0 };
-            datasets.forEach(d => {
-                if (d.method.includes("Marker")) methodCounts["Marker"]++;
-                else if (d.method.includes("IMU")) methodCounts["IMU"]++;
-                else if (d.method.includes("Synthetic")) methodCounts["Synthetic"]++;
-                else methodCounts["Video"]++;
-            });
-
-            const ctxDim = document.getElementById('dimensionChart').getContext('2d');
-            dimChartInstance = new Chart(ctxDim, {
-                type: 'doughnut',
-                data: {
-                    labels: ['3D Datasets', '2D Datasets', 'Hybrid'],
-                    datasets: [{
-                        data: [dimCounts["3D"], dimCounts["2D"], dimCounts["Hybrid"]],
-                        backgroundColor: ['#d97706', '#78716c', '#44403c'], // Amber-600, Stone-500, Stone-700
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, font: {family: 'ui-sans-serif'} } }
-                    },
-                    cutout: '70%'
-                }
-            });
-
-            const ctxMethod = document.getElementById('methodChart').getContext('2d');
-            methodChartInstance = new Chart(ctxMethod, {
-                type: 'bar',
-                data: {
-                    labels: ['Marker', 'Video/Vis', 'IMU', 'Synth'],
-                    datasets: [{
-                        label: 'Count',
-                        data: [methodCounts["Marker"], methodCounts["Video"], methodCounts["IMU"], methodCounts["Synthetic"]],
-                        backgroundColor: '#d6d3d1', // Stone-300
-                        hoverBackgroundColor: '#d97706', // Amber-600
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: true, grid: { display: false } },
-                        x: { grid: { display: false } }
-                    },
-                    plugins: {
-                        legend: { display: false }
-                    }
-                }
-            });
-        }
-
-        // --- MODAL LOGIC ---
-        function openModal(dataset) {
-            modalContent.title.innerText = dataset.name;
-            modalContent.desc.innerText = dataset.description;
-            modalContent.icon.innerText = dataset.icon;
-
-            // Badges
-            modalContent.badges.innerHTML = `
-                <span class="px-2 py-1 rounded text-xs font-semibold ${getBadgeColor('dim', dataset.dimension)}">${dataset.dimension}</span>
-                <span class="px-2 py-1 rounded text-xs font-semibold bg-stone-100 text-stone-700">${dataset.method}</span>
-                <span class="px-2 py-1 rounded text-xs font-semibold ${getBadgeColor('sub', dataset.subjects)}">${dataset.subjects}</span>
-                <span class="px-2 py-1 rounded text-xs font-semibold bg-stone-100 text-stone-500">Year: ${dataset.year}</span>
-            `;
-
-            // Stats List
-            modalContent.stats.innerHTML = `
-                <li class="flex justify-between border-b border-stone-100 py-1"><span>Subjects:</span> <span class="font-mono text-stone-900">${dataset.stats.subjects}</span></li>
-                <li class="flex justify-between border-b border-stone-100 py-1"><span>Frame Rate:</span> <span class="font-mono text-stone-900">${dataset.stats.fps}</span></li>
-                <li class="flex justify-between border-b border-stone-100 py-1"><span>Volume:</span> <span class="font-mono text-stone-900">${dataset.stats.motions}</span></li>
-            `;
-
-            // Tags
-            modalContent.tags.innerHTML = dataset.labels.map(l => 
-                `<span class="px-2 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-100">${l}</span>`
-            ).join('');
-
-            modal.classList.remove('hidden');
-        }
-
-        function toggleModal() {
-            modal.classList.add('hidden');
-        }
-
-        // --- INIT ---
-        window.addEventListener('DOMContentLoaded', init);
-
-    </script>
 </body>
 </html>
