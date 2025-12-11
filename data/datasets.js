@@ -17,7 +17,7 @@ const datasets = [
     {
         id: 2,
         name: "Human3.6M",
-        dimension: "3D",
+        dimension: "3D"
         method: "Marker + Video",
         subjects: "Single",
         year: 2014,
