@@ -312,22 +312,76 @@ function openModal(dataset) {
     modalContent.desc.innerText = dataset.description;
     modalContent.icon.innerText = dataset.icon;
 
+    // Badges (Added Institution and License)
     modalContent.badges.innerHTML = `
+        <span class="px-2 py-1 rounded text-xs font-semibold bg-stone-800 text-stone-100">${dataset.institution}</span>
         <span class="px-2 py-1 rounded text-xs font-semibold ${getBadgeColor('dim', dataset.dimension)}">${dataset.dimension}</span>
         <span class="px-2 py-1 rounded text-xs font-semibold bg-stone-100 text-stone-700">${dataset.method}</span>
         <span class="px-2 py-1 rounded text-xs font-semibold ${getBadgeColor('sub', dataset.subjects)}">${dataset.subjects}</span>
-        <span class="px-2 py-1 rounded text-xs font-semibold bg-stone-100 text-stone-500">Year: ${dataset.year}</span>
     `;
 
+    // Stats Column
     modalContent.stats.innerHTML = `
+        <li class="flex justify-between border-b border-stone-100 py-1"><span>Year:</span> <span class="font-mono text-stone-900">${dataset.year}</span></li>
         <li class="flex justify-between border-b border-stone-100 py-1"><span>Subjects:</span> <span class="font-mono text-stone-900">${dataset.stats.subjects}</span></li>
-        <li class="flex justify-between border-b border-stone-100 py-1"><span>Frame Rate:</span> <span class="font-mono text-stone-900">${dataset.stats.fps}</span></li>
+        <li class="flex justify-between border-b border-stone-100 py-1"><span>FPS:</span> <span class="font-mono text-stone-900">${dataset.stats.fps}</span></li>
         <li class="flex justify-between border-b border-stone-100 py-1"><span>Volume:</span> <span class="font-mono text-stone-900">${dataset.stats.motions}</span></li>
     `;
 
+    // New: Access Column
+    const formatList = dataset.formats ? dataset.formats.join(", ") : "N/A";
+    const modalAccess = document.getElementById('modalAccess'); // Make sure to grab this element in init()!
+    if(modalAccess) {
+        modalAccess.innerHTML = `
+            <li class="flex flex-col border-b border-stone-100 py-1">
+                <span class="text-xs text-stone-400">License</span>
+                <span class="font-medium text-stone-900">${dataset.license}</span>
+            </li>
+            <li class="flex flex-col border-b border-stone-100 py-1">
+                <span class="text-xs text-stone-400">Formats</span>
+                <span class="font-mono text-stone-900 text-xs">${formatList}</span>
+            </li>
+        `;
+    }
+
+    // Tags
     modalContent.tags.innerHTML = dataset.labels.map(l => 
         `<span class="px-2 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-100">${l}</span>`
     ).join('');
+
+    // Dynamic Links Buttons
+    const linksContainer = document.getElementById('modalLinks');
+    linksContainer.innerHTML = ''; // Clear old buttons
+
+    // 1. Website Button (Primary)
+    if (dataset.links.website) {
+        const btn = document.createElement('a');
+        btn.href = dataset.links.website;
+        btn.target = "_blank";
+        btn.className = "w-full sm:w-auto inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-amber-600 text-base font-medium text-white hover:bg-amber-700 sm:text-sm";
+        btn.innerText = "Visit Website ↗";
+        linksContainer.appendChild(btn);
+    }
+
+    // 2. Paper Button (Secondary)
+    if (dataset.links.paper) {
+        const btn = document.createElement('a');
+        btn.href = dataset.links.paper;
+        btn.target = "_blank";
+        btn.className = "w-full sm:w-auto inline-flex justify-center rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-stone-700 hover:bg-stone-50 sm:text-sm";
+        btn.innerText = "Read Paper 📄";
+        linksContainer.appendChild(btn);
+    }
+    
+    // 3. Download Button (Secondary)
+    if (dataset.links.download) {
+        const btn = document.createElement('a');
+        btn.href = dataset.links.download;
+        btn.target = "_blank";
+        btn.className = "w-full sm:w-auto inline-flex justify-center rounded-md border border-stone-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-stone-700 hover:bg-stone-50 sm:text-sm";
+        btn.innerText = "Download 💾";
+        linksContainer.appendChild(btn);
+    }
 
     modal.classList.remove('hidden');
 }

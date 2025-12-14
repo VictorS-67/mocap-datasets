@@ -10,7 +10,6 @@ const sandbox = {};
 vm.createContext(sandbox);
 
 try {
-    // Run the code to define the variable in memory
     vm.runInContext(code, sandbox);
 } catch (e) {
     console.error("❌ SYNTAX ERROR: Your datasets.js file has invalid JavaScript.");
@@ -18,10 +17,7 @@ try {
     process.exit(1);
 }
 
-// --- FIX START ---
-// We cannot use 'sandbox.datasets' because 'const' variables 
-// don't attach to the sandbox object in Node VM.
-// Instead, we evaluate the variable name inside the context to retrieve it.
+// Retrieve the datasets variable
 let datasets;
 try {
     datasets = vm.runInContext('datasets', sandbox);
@@ -29,16 +25,19 @@ try {
     console.error("❌ ERROR: Could not find variable 'datasets'. Did you rename it?");
     process.exit(1);
 }
-// --- FIX END ---
 
 // 2. Define Schema Rules
-const requiredFields = ['id', 'name', 'dimension', 'method', 'subjects', 'description', 'labels'];
+const requiredFields = ['id', 'name', 'institution', 'license', 'year', 'dimension', 'method', 'subjects', 'description', 'formats', 'links', 'labels', 'categories'];
 const validDimensions = ['2D', '3D', 'Hybrid'];
 const validSubjects = ['Single', 'Multi', 'Crowd'];
+const validCategories = ["General", "Sports", "Interaction", "Daily Living", "Wild", "Hands/Face"];
+const idRegex = /^[A-Z0-9]{4}$/;
 
 // 3. Run Validation
 console.log(`🔍 Validating ${datasets.length} datasets...`);
 let hasError = false;
+// Track IDs to ensure uniqueness
+const seenIds = new Set();
 
 datasets.forEach((item, index) => {
     // Check Required Fields
@@ -48,6 +47,43 @@ datasets.forEach((item, index) => {
             hasError = true;
         }
     });
+
+    // Check ID Format (4 Characters)
+    if (item.id) {
+        if (!idRegex.test(item.id)) {
+            console.error(`❌ Error in Item #${index + 1} ("${item.name}"): Invalid ID '${item.id}'. Must be EXACTLY 4 uppercase alphanumeric characters (e.g., 'CMU1').`);
+            hasError = true;
+        }
+        if (seenIds.has(item.id)) {
+            console.error(`❌ Error in Item #${index + 1} ("${item.name}"): Duplicate ID '${item.id}'. IDs must be unique.`);
+            hasError = true;
+        }
+        seenIds.add(item.id);
+    }
+
+    // Check Categories
+    if (!item.categories || !Array.isArray(item.categories) || item.categories.length === 0) {
+        console.error(`❌ Error in Item #${index + 1}: Must have 'categories' array with at least one item.`);
+        hasError = true;
+    } else {
+        const primary = item.categories[0];
+        if (!validCategories.includes(primary)) {
+            console.error(`❌ Error in Item #${index + 1} ("${item.name}"): Primary category '${primary}' is invalid. Must be one of: ${validCategories.join(", ")}`);
+            hasError = true;
+        }
+    }
+
+    // Check Links Object
+    if (item.links && !item.links.website) {
+        console.error(`❌ Error in Item #${index + 1}: 'links' must contain at least a 'website' URL.`);
+        hasError = true;
+    }
+
+    // Check Formats Array
+    if (item.formats && !Array.isArray(item.formats)) {
+        console.error(`❌ Error in Item #${index + 1}: 'formats' must be an Array.`);
+        hasError = true;
+    }
 
     // Check Enums (Dimension)
     if (item.dimension && !validDimensions.some(d => item.dimension.includes(d))) {
