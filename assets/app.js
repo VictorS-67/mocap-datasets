@@ -73,7 +73,6 @@ function init() {
     loadFromURL();
 
     // 3. Setup & Render
-    assignIcons(); // <--- NEW: Assign icons before rendering
     setupEventListeners();
     updateStats();
     renderCharts();
