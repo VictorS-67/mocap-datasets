@@ -7,7 +7,7 @@ const datasets = [
         name: "CMU Mocap",
         institution: "Carnegie Mellon University",
         license: "Public / Free (Commercial Allowed)",
-        year: 2003, a
+        year: 2003,
         dimension: "3D",
         method: "Marker (Vicon)",
         subjects: "Single",
