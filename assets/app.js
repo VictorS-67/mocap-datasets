@@ -13,6 +13,21 @@ let state = {
     filteredData: typeof datasets !== 'undefined' ? [...datasets] : []
 };
 
+// ICON MAPPING
+const categoryIcons = {
+    "General": "🏛️",
+    "Sports": "⚽",
+    "Interaction": "🤝",
+    "Wild": "🌲",
+    "Social": "🎬",
+    "Synthetic": "🤖",
+    "Shape": "🧊",
+    "Hands/Face": "🖐️"
+};
+
+// Fallback if category is missing or typo
+const defaultIcon = "📁";
+
 // --- DOM ELEMENTS ---
 let gridEl, emptyStateEl, searchInput, resetButton;
 let filterSelects = {};
@@ -28,7 +43,7 @@ function init() {
     gridEl = document.getElementById('datasetGrid');
     emptyStateEl = document.getElementById('emptyState');
     searchInput = document.getElementById('searchInput');
-    
+
     filterSelects = {
         dimension: document.getElementById('dimensionFilter'),
         method: document.getElementById('methodFilter'),
@@ -58,10 +73,11 @@ function init() {
     loadFromURL();
 
     // 3. Setup & Render
+    assignIcons(); // <--- NEW: Assign icons before rendering
     setupEventListeners();
     updateStats();
     renderCharts();
-    
+
     // Initial filter application (to respect URL params)
     applyFilters(false); // false = don't write to URL on initial load
 }
@@ -133,13 +149,13 @@ function applyFilters(shouldUpdateURL = true) {
 
     state.filteredData = datasets.filter(item => {
         // Search Text
-        const matchesSearch = item.name.toLowerCase().includes(state.searchQuery) || 
-                              item.description.toLowerCase().includes(state.searchQuery) ||
-                              item.labels.some(l => l.toLowerCase().includes(state.searchQuery));
+        const matchesSearch = item.name.toLowerCase().includes(state.searchQuery) ||
+            item.description.toLowerCase().includes(state.searchQuery) ||
+            item.labels.some(l => l.toLowerCase().includes(state.searchQuery));
 
         // Dimension Filter
-        const matchesDim = state.filters.dimension === "all" || 
-                           (state.filters.dimension === "Hybrid" ? item.dimension.includes("Hybrid") : item.dimension === state.filters.dimension);
+        const matchesDim = state.filters.dimension === "all" ||
+            (state.filters.dimension === "Hybrid" ? item.dimension.includes("Hybrid") : item.dimension === state.filters.dimension);
 
         // Method Filter (Fuzzy matching)
         let matchesMethod = true;
@@ -184,21 +200,24 @@ function getBadgeColor(type, value) {
 
 function renderGrid() {
     gridEl.innerHTML = "";
-    
+
     if (state.filteredData.length === 0) {
         emptyStateEl.classList.remove('hidden');
     } else {
         emptyStateEl.classList.add('hidden');
-        
+
         state.filteredData.forEach(dataset => {
             const card = document.createElement('div');
             card.className = "dataset-card bg-white rounded-xl border border-stone-200 p-6 flex flex-col h-full cursor-pointer hover:border-amber-300";
             card.onclick = () => openModal(dataset);
 
+            const primaryCategory = dataset.categories ? dataset.categories[0] : "General";
+            const icon = categoryIcons[primaryCategory] || defaultIcon;
+
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-4">
                     <div class="flex items-center gap-3">
-                        <span class="text-2xl bg-stone-50 p-2 rounded-lg">${dataset.icon}</span>
+                        <span class="text-2xl bg-stone-50 p-2 rounded-lg">${icon}</span>
                         <div>
                             <h3 class="font-bold text-stone-900 leading-tight">${dataset.name}</h3>
                             <span class="text-xs text-stone-500">${dataset.year}</span>
@@ -266,7 +285,7 @@ function renderCharts() {
             labels: ['3D Datasets', '2D Datasets', 'Hybrid'],
             datasets: [{
                 data: [dimCounts["3D"], dimCounts["2D"], dimCounts["Hybrid"]],
-                backgroundColor: ['#d97706', '#78716c', '#44403c'], 
+                backgroundColor: ['#d97706', '#78716c', '#44403c'],
                 borderWidth: 0
             }]
         },
@@ -274,7 +293,7 @@ function renderCharts() {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'bottom', labels: { usePointStyle: true, font: {family: 'ui-sans-serif'} } }
+                legend: { position: 'bottom', labels: { usePointStyle: true, font: { family: 'ui-sans-serif' } } }
             },
             cutout: '70%'
         }
@@ -308,9 +327,10 @@ function renderCharts() {
 }
 
 function openModal(dataset) {
+    const primaryCategory = dataset.categories ? dataset.categories[0] : "General";
+    modalContent.icon.innerText = categoryIcons[primaryCategory] || defaultIcon;
     modalContent.title.innerText = dataset.name;
     modalContent.desc.innerText = dataset.description;
-    modalContent.icon.innerText = dataset.icon;
 
     // Badges (Added Institution and License)
     modalContent.badges.innerHTML = `
@@ -331,7 +351,7 @@ function openModal(dataset) {
     // New: Access Column
     const formatList = dataset.formats ? dataset.formats.join(", ") : "N/A";
     const modalAccess = document.getElementById('modalAccess'); // Make sure to grab this element in init()!
-    if(modalAccess) {
+    if (modalAccess) {
         modalAccess.innerHTML = `
             <li class="flex flex-col border-b border-stone-100 py-1">
                 <span class="text-xs text-stone-400">License</span>
@@ -345,7 +365,7 @@ function openModal(dataset) {
     }
 
     // Tags
-    modalContent.tags.innerHTML = dataset.labels.map(l => 
+    modalContent.tags.innerHTML = dataset.labels.map(l =>
         `<span class="px-2 py-1 bg-amber-50 text-amber-800 text-xs rounded-full border border-amber-100">${l}</span>`
     ).join('');
 
@@ -372,7 +392,7 @@ function openModal(dataset) {
         btn.innerText = "Read Paper 📄";
         linksContainer.appendChild(btn);
     }
-    
+
     // 3. Download Button (Secondary)
     if (dataset.links.download) {
         const btn = document.createElement('a');
