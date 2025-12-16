@@ -62,12 +62,14 @@ Icons are **derived** from the primary category (index 0 of categories). Do not 
 
 | Category | Emoji | Definition |
 | :---- | :---- | :---- |
-| **General** | 🏛️ | Broad, multi-purpose lab datasets (Locomotion, ROM). |
+| **General** | 🏛️ | Lab-based, whole-body, locomotion/ROM. |
 | **Sports** | ⚽ | Athletics, dance, martial arts, performance. |
-| **Interaction** | 🤝 | Multi-person scenarios or Human-Object Interaction. |
-| **Daily Living** | ☕ | Cooking, Eating, Hygiene, Housework, Office work. |
+| **Interaction** | 🤝 | Social (HHI) OR Object (HOI). Multi-agent or manipulation. |
+| **Daily Living** | ☕ | Activities of daily living (ADL), cooking, office work. |
 | **Wild** | 🌲 | Unscripted, natural behavior recorded outdoors/public. |
-| **Hands/Face** | 🖐️ | Focused purely on specific body parts. |
+| **Hands/Face** | 🖐️ | Part-specific, fine-grained. |
+| **Egocentric** | 🕶️ | First-person view. |
+| **Expressive** | 🎭 | Emotion, style, non-verbal communication. |
 
 ## **6\. Operational Guidelines**
 

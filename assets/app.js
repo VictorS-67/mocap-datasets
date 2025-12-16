@@ -22,7 +22,9 @@ const categoryIcons = {
     "Social": "🎬",
     "Synthetic": "🤖",
     "Shape": "🧊",
-    "Hands/Face": "🖐️"
+    "Hands/Face": "🖐️",
+    "Egocentric": "🕶️",
+    "Expressive": "🎭"
 };
 
 // Fallback if category is missing or typo

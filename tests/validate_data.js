@@ -30,7 +30,7 @@ try {
 const requiredFields = ['id', 'name', 'institution', 'license', 'year', 'dimension', 'method', 'subjects', 'description', 'formats', 'links', 'labels', 'categories'];
 const validDimensions = ['2D', '3D', 'Hybrid'];
 const validSubjects = ['Single', 'Multi', 'Crowd'];
-const validCategories = ["General", "Sports", "Interaction", "Daily Living", "Wild", "Hands/Face"];
+const validCategories = ["General", "Sports", "Interaction", "Daily Living", "Wild", "Hands/Face", "Egocentric", "Expressive"];
 const idRegex = /^[A-Z0-9]{4}$/;
 
 // 3. Run Validation
